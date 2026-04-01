@@ -1,0 +1,448 @@
+:root {
+  --bg-color: #050505;
+  --text-primary: #00ff41;
+  --text-secondary: #008f11;
+  --accent: #00ffff;
+  --panel-bg: rgba(10, 10, 10, 0.8);
+  --border-color: #1a1a1a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: 'Consolas', 'Courier New', Courier, monospace;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 3rem;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* CRT Scanline overlay */
+body::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 2;
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+
+.terminal-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  position: relative;
+  z-index: 5;
+}
+.terminal-header h1 { 
+  color: var(--accent); 
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.vault-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  flex-grow: 1;
+  position: relative;
+  z-index: 5;
+}
+
+.vault-module {
+  border: 1px solid var(--border-color);
+  background: var(--panel-bg);
+  padding: 1.5rem;
+  position: relative;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 4px;
+}
+
+.module-header {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+}
+/* Flashing cursor */
+.module-header span:last-child::after {
+  content: '█';
+  animation: blink 1s step-end infinite;
+  margin-left: 8px;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* Puzzle 1: Phantom Blueprint */
+.blueprint-container {
+  position: relative;
+  flex-grow: 1;
+  overflow: hidden;
+  background: var(--bg-color);
+  cursor: crosshair;
+  border-radius: 4px;
+  border: 1px solid #111;
+}
+.hidden-blueprint {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0; left: 0;
+}
+.mask-layer {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle 80px at var(--mouse-x, 50%) var(--mouse-y, 50%), transparent 0%, #030303 100%);
+  z-index: 10;
+  transition: background 0.1s ease;
+}
+
+/* Puzzle 2: Cipher Log */
+.cipher-container {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #030303;
+  border-radius: 4px;
+  border: 1px solid #111;
+}
+.hidden-text {
+  color: #030303; /* Secret color matching bg */
+  background: #030303;
+  user-select: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Puzzle 3: Ghost Protocol */
+.console-hint {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px dashed var(--border-color);
+  border-radius: 4px;
+}
+.console-hint p { margin: 0.5rem 0; font-size: 1.1rem; }
+.comment { color: #444; font-style: italic; font-size: 0.9rem !important; }
+
+.ghost-modal {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid var(--accent);
+  padding: 3rem;
+  z-index: 100;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+  text-align: center;
+  backdrop-filter: blur(5px);
+  animation: glitch-anim 0.2s linear forwards;
+}
+@keyframes glitch-anim {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* Puzzle 4: Glitch Keypad */
+.keypad-container {
+  flex-grow: 1;
+  position: relative;
+  overflow: hidden;
+  background: repeating-linear-gradient(45deg, #050505, #0a0a0a 10px, #050505 10px, #050505 20px);
+  border-radius: 4px;
+  border: 1px solid #111;
+}
+.cyber-btn {
+  padding: 1rem 2rem;
+  background: rgba(0, 255, 255, 0.05);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+  letter-spacing: 2px;
+  position: absolute;
+  top: -100px; /* Initially hidden until JS places it */
+  transition: box-shadow 0.2s, background 0.2s;
+  text-shadow: 0 0 5px var(--accent);
+  z-index: 50;
+}
+.cyber-btn:focus, .cyber-btn:hover {
+  background: var(--accent);
+  color: #000;
+  outline: none;
+  box-shadow: 0 0 15px var(--accent);
+  text-shadow: none;
+}
+
+/* Puzzle 5: Dimension Restrictor */
+.dimension-container {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: repeating-linear-gradient(0deg, #050505, #080808 2px, #050505 4px);
+  border-radius: 4px;
+}
+.dimension-hint {
+  color: #555;
+  font-style: italic;
+}
+.hidden-dimension {
+  display: none;
+  color: var(--accent);
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 0 0 10px var(--accent);
+}
+/* Trigger at exactly 404px width */
+@media (width: 404px) {
+  .dimension-hint { display: none; }
+  .hidden-dimension { display: block; }
+}
+
+/* Puzzle 6: Network Phantom */
+.network-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #080808;
+  border-radius: 4px;
+  border: 1px solid #111;
+}
+
+/* Puzzle 7: Local Stash */
+.storage-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #0a0a0a;
+  border-radius: 4px;
+}
+
+/* Puzzle 8: Ghost in the Machine */
+.ghost-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #020202;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.ghost-container::before {
+  content: " ";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at center, transparent, rgba(0, 255, 65, 0.05));
+  pointer-events: none;
+}
+
+/* Sidebar & Layout */
+.layout-container {
+  display: flex;
+  gap: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 5;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.vault-sidebar {
+  width: 380px;
+  flex-shrink: 0;
+  border: 1px solid var(--accent);
+  background: var(--panel-bg);
+  padding: 1.5rem;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 4px;
+  position: sticky;
+  top: 2rem;
+}
+
+.sidebar-title {
+  color: var(--accent);
+  font-size: 1.2rem;
+  text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+  border-bottom: 1px dashed var(--accent);
+  padding-bottom: 0.5rem;
+}
+
+.sidebar-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  background: var(--text-primary);
+  box-shadow: 0 0 10px var(--text-primary);
+  transition: width 0.3s ease;
+}
+.progress-text {
+  font-size: 0.8rem;
+  text-align: right;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.key-submit-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.cyber-input {
+  flex-grow: 1;
+  background: #000;
+  border: 1px solid #333;
+  color: var(--text-primary);
+  padding: 0.5rem;
+  font-family: inherit;
+  width: 100%;
+}
+.cyber-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.cyber-btn-small {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 0 1rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.cyber-btn-small:hover {
+  background: var(--accent);
+  color: #000;
+}
+.submit-feedback {
+  font-size: 0.8rem;
+  min-height: 1.2em;
+  color: #ff3333;
+}
+
+.hint-item {
+  margin-bottom: 1rem;
+  padding: 0.7rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 2px solid #333;
+}
+.hint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.hint-header span {
+  font-size: 0.85rem;
+  color: #888;
+}
+.hint-btn {
+  background: transparent;
+  color: #008f11;
+  border: 1px solid #008f11;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.hint-btn:hover { background: #008f11; color: #000; }
+.hint-text {
+  font-size: 0.8rem;
+  color: #bbb;
+  display: none;
+  margin-top: 0.8rem;
+}
+
+/* Add solved class to modules */
+.vault-module.solved {
+  border-color: var(--text-primary);
+  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.05), 0 0 10px rgba(0, 255, 65, 0.1);
+}
+.vault-module.solved .module-header {
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
+}
+.vault-module.solved::after {
+  content: "DECRYPTED";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  color: rgba(0, 255, 65, 0.15);
+  pointer-events: none;
+  font-weight: bold;
+  letter-spacing: 10px;
+  z-index: 20;
+}
+
+.blueprint-secret {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  font-weight: bold;
+  font-size: 1.5rem;
+  text-shadow: 0 0 10px var(--accent);
+  z-index: 5;
+}
+
+@media (max-width: 1024px) {
+  .layout-container {
+    flex-direction: column;
+  }
+  .vault-sidebar {
+    width: 100%;
+    position: static;
+    margin-top: 2rem;
+  }
+}
