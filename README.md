@@ -20,7 +20,8 @@ Instead of a standard landing page, this site is a simulated highly-secure termi
 > **Note:** Here is a sneak peek of the vault in action, featuring the interactive CSS flashlight mask and keyboard-evading UI.
 
 <div align="center">
-  <img src="./public/demo.webp" width="800" alt="Cyber Vault Gameplay Demo" />
+  <img src="./cyber_vault.gif" alt="Cyber Vault Gameplay Demo" />
+  <img width="1422" height="831" alt="Puzzle_Solved_image" src="https://github.com/user-attachments/assets/558b52d2-6591-444e-98a7-4074f5a174c5" />
 </div>
 
 ## 🧩 The 8 Security Fragments
@@ -46,7 +47,7 @@ Want to try hacking the vault yourself?
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/cyber-vault.git
+git clone https://github.com/Kavypatel07/cyber-vault.git
 
 # Navigate into the directory
 cd cyber-vault
@@ -58,9 +59,9 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser and open up your DevTools (F12)—you're going to need them!
+Open `http://localhost:5173` in your browser and open up your DevTools (F12)—you're going to need them!🔏🤫
 
 ---
 <div align="center">
-  <i>Built with 🍵 and Vanilla JS.</i>
+  <i>Built with fun🍵 and Vanilla JS.</i>
 </div>
